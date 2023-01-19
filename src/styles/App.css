@@ -18,3 +18,21 @@
     margin-top: 15px;
     justify-content: space-between;
 }
+.post-enter {
+    transform: translateY(750px);
+    opacity: 0;
+  }
+  .post-enter-active {
+    opacity: 1;
+    transition: all 500ms ease-in;
+    transform: translateY(0px);
+  }
+  .post-exit {
+    opacity: 1;
+  }
+  .post-exit-active {
+    transform: translateY(350px);
+    opacity: 0;
+    transition: transform 500ms ease-in, opacity .2s ease-in;
+  }
+  
