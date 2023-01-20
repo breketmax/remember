@@ -1,18 +1,18 @@
 import React,{useEffect, useState } from "react";
-import PostForm from "./components/PostForm";
-import PostList from "./components/PostList";
-import Pagination from "./components/Pagination"
-import "./styles/App.css"
-import PostFilter from "./components/PostFilter";
-import MyModal from "./components/UI/MyModal/MyModal";
-import MyButton from "./components/UI/button/MyButton";
-import { usePosts } from "./hooks/usePosts";
-import PostService from "./API/PostService";
-import Loader from "./components/UI/Loader/Loader";
-import { useFetching } from "./hooks/useFetching";
-import { getPagesCount,getPagesArray} from "./components/utils/pages";
+import PostForm from "../PostForm";
+import PostList from "../PostList";
+import Pagination from "../UI/pagination/Pagination"
+import "../../styles/App.css"
+import PostFilter from "../PostFilter";
+import MyModal from "../UI/MyModal/MyModal";
+import MyButton from "../UI/button/MyButton";
+import { usePosts } from "../../hooks/usePosts";
+import PostService from "../../API/PostService";
+import Loader from "../UI/Loader/Loader";
+import { useFetching } from "../../hooks/useFetching";
+import { getPagesCount} from "../utils/pages";
 
-const  App = () => {
+const  Posts = () => {
   const [posts,setPosts] = useState([
     {id:1, title:"da", body:"z"},
     {id:2, title:"asd", body:"asd"},
@@ -29,7 +29,7 @@ const  App = () => {
   const [totalPages,setTotalPages] = useState(0);
   const sortedAndSearchedPosts = usePosts(posts,filter.sort,filter.query);
 
-  let pagesArray = getPagesArray(totalPages);
+  
 
   const[fetchPosts,isPostsLoading,postError] = useFetching(async(limit,page)=>{
     const posts = await PostService.getAll(limit,page);
@@ -63,11 +63,11 @@ const  App = () => {
     <PostFilter filter={filter} setFilter={setFilter}/>
       {postError && <h1>Something goes wronk</h1>}
       {isPostsLoading ? <div style={{display:'flex',marginTop:"50px",justifyContent:'center'}}><Loader/></div> :<PostList posts={sortedAndSearchedPosts}  title="Список хуйни" remove={removePost}/>}   
-      <Pagination pagesArray={pagesArray} page={page} changePage={changePage}/>
+      <Pagination totalPages={totalPages} page={page} changePage={changePage}/>
     </div>
 
   );
 }
 
-export default App;
+export default Posts;
  

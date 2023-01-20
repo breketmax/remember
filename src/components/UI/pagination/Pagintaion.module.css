@@ -1,0 +1,14 @@
+.pageWrapper{
+    margin-top: 30px;
+    display: flex;
+  }
+  .page{
+    padding: 10px;
+    border: 1px solid blue;
+    cursor:pointer;
+  }
+  .pageCurrent{
+    border: 5px solid pink;
+    font-weight: bold;
+  
+  }
