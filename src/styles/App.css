@@ -37,3 +37,8 @@
     transition: transform 500ms ease-in, opacity .2s ease-in;
   }
   
+  .post_btns{
+  display: flex;
+  row-gap: 5px;
+  flex-direction: column;
+}

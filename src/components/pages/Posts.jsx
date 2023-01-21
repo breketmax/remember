@@ -1,23 +1,22 @@
-import React,{useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import PostService from "../../API/PostService";
+import { useFetching } from "../../hooks/useFetching";
+import { useObserver } from "../../hooks/useObserver";
+import { usePosts } from "../../hooks/usePosts";
+import "../../styles/App.css";
+import PostFilter from "../PostFilter";
 import PostForm from "../PostForm";
 import PostList from "../PostList";
-import Pagination from "../UI/pagination/Pagination"
-import "../../styles/App.css"
-import PostFilter from "../PostFilter";
-import MyModal from "../UI/MyModal/MyModal";
 import MyButton from "../UI/button/MyButton";
-import { usePosts } from "../../hooks/usePosts";
-import PostService from "../../API/PostService";
 import Loader from "../UI/Loader/Loader";
-import { useFetching } from "../../hooks/useFetching";
-import { getPagesCount} from "../utils/pages";
+import MyModal from "../UI/MyModal/MyModal";
+import Pagination from "../UI/pagination/Pagination";
+import MySelect from "../UI/select/MySelect";
+import { getPagesCount } from "../utils/pages";
 
 const  Posts = () => {
   const [posts,setPosts] = useState([
-    {id:1, title:"da", body:"z"},
-    {id:2, title:"asd", body:"asd"},
-    {id:3, title:"zxc 3", body:"2"},
-    {id:4, title:"had", body:"3333"}
+
   ]);
   const [filter,setFilter] = useState({
     sort:'',
@@ -28,20 +27,25 @@ const  Posts = () => {
   const[page,setPage] = useState(1);
   const [totalPages,setTotalPages] = useState(0);
   const sortedAndSearchedPosts = usePosts(posts,filter.sort,filter.query);
+  const lastEl = useRef();
 
   
 
   const[fetchPosts,isPostsLoading,postError] = useFetching(async(limit,page)=>{
-    const posts = await PostService.getAll(limit,page);
-    setPosts(posts.data);
-    const totalCount = posts.headers['x-total-count'];
+    const resp = await PostService.getAll(limit,page);
+    // setPosts([...posts,...resp.data]);   // with infinitive scroll
+    setPosts(resp.data);
+    const totalCount = resp.headers['x-total-count'];
     setTotalPages(getPagesCount(totalCount,limit));
   });
 
+  // useObserver(lastEl,page<totalPages,isPostsLoading,()=>{     //that the same shit
+  //   setPage(page+1)
+  // })
 
   useEffect(()=>{
     fetchPosts(limit,page);
-  },[]);
+  },[page,limit]);
 
   const removePost =(post) =>{
     setPosts(posts.filter(p => p.id !==post.id));
@@ -52,7 +56,6 @@ const  Posts = () => {
   }
   const changePage = (pageNumber) =>{
     setPage(pageNumber);
-    fetchPosts(limit,pageNumber);
   }
   return (
     <div className="App">
@@ -61,8 +64,23 @@ const  Posts = () => {
       <PostForm create={createPost}/> 
     </MyModal>
     <PostFilter filter={filter} setFilter={setFilter}/>
-      {postError && <h1>Something goes wronk</h1>}
-      {isPostsLoading ? <div style={{display:'flex',marginTop:"50px",justifyContent:'center'}}><Loader/></div> :<PostList posts={sortedAndSearchedPosts}  title="Список хуйни" remove={removePost}/>}   
+    <MySelect
+      value={limit}
+      onChange={value => setLimit(value)}
+      defaultValue="Кол-во элементов on page"
+      options={[
+        {value:5,name:'5'},
+        {value:10,name:'10'},
+        {value:25,name:'25'},
+        {value:-1,name:'Показать все'},
+      ]}
+    />
+      {postError && <Loader/>}
+      <PostList posts={sortedAndSearchedPosts}  title="Список хуйни" remove={removePost}/>  
+      <div ref={lastEl}></div>
+      {isPostsLoading && 
+        <div style={{display:'flex',marginTop:"50px",justifyContent:'center'}}><Loader/></div>
+      } 
       <Pagination totalPages={totalPages} page={page} changePage={changePage}/>
     </div>
 
